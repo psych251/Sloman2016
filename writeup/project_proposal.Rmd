@@ -1,0 +1,21 @@
+---
+title: "project_proposal"
+output: word_document
+---
+
+#Justification for choice of experiment:
+In their paper "Your Understanding is My Understanding: Evidence for a Community of Knowledge," Sloman and Rabb found that when members of the lay public (participants) were exposed to new and unfamiliar scientific information, they rated their own understanding of this novel information higher when a description of this scientific discovery mentioned that scientists fully understand how it works than when the description stated that scientists do not understand how it works. I am interested in this finding, first and foremost, because I am interested in how we as psychologists can share our findings with the general population, and how the ways we talk about scientific findings influences if and how people understand them. I am also interested in this topic because my own research involves changing the mindsets of healthcare providers, in part, by providing compelling scientific evidence. Thus, I am interested in the ways descriptions of scientific evidence alter individual's perceptions of understanding that evidence. 
+
+#Stimuli and Procedures
+In order to conduct this experiment, I will need access to the following materials from the original authors: 
+
+1) Information provided to participants as part of the cover story
+
+2) Study instructions, which explained how to use a rating scale to indicate causal understanding
+
+3) Study stimuli: four fictional descriptions of newly discovered natural phenomena (with fictional details about the scientists and journals)
+
+To conduct this experiment, I will expose mTurk participants to all four descriptions and then assess their understanding between the conditions stating that scientists do understand the phenomenon and the conditions stating that scientists don't understand the phenomenon. The authors of this original study expected, and found, understanding to be low, so they used log transformation to increase normality of the scores. I plan to use the same method and then compare understanding across conditions using a t test. 
+
+#Challenges
+I anticipate the biggest challenge will be thinking through what kind of replication I'd like to do: an exact replication would, of course, require obtaining the exact stimuli used in the original study. Since this is a study where specific descriptions of the scientific findings could be considered very important, you could argue that this kind of exact replication would be optimal. However, a conceptual replication, in which I wrote my own stimuli using the priciples outlined in the original paper (i.e. some descriptions of scientific findings mention that scientists understand these findings while some state that scientists don't understand these findings), could be a stronger test of the underlying theory behind this finding. Part of whether or not I conduct an exact replication of this study will depend on the level of cooperation and involvement from the original study authors. 
