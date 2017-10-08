@@ -2,6 +2,7 @@
 title: "project_proposal"
 output: word_document
 ---
+#Kari Leibowitz
 
 #Justification for choice of experiment:
 In their paper "Your Understanding is My Understanding: Evidence for a Community of Knowledge," Sloman and Rabb found that when members of the lay public (participants) were exposed to new and unfamiliar scientific information, they rated their own understanding of this novel information higher when a description of this scientific discovery mentioned that scientists fully understand how it works than when the description stated that scientists do not understand how it works. I am interested in this finding, first and foremost, because I am interested in how we as psychologists can share our findings with the general population, and how the ways we talk about scientific findings influences if and how people understand them. I am also interested in this topic because my own research involves changing the mindsets of healthcare providers, in part, by providing compelling scientific evidence. Thus, I am interested in the ways descriptions of scientific evidence alter individual's perceptions of understanding that evidence. 
