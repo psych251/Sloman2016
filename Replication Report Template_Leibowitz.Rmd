@@ -106,6 +106,35 @@ We will be recruiting a different, smaller sample size than in the original stud
 
 I do not anticipate that these differences will influence our ability to reproduce effects from the original study.
 
+###Pilot A (added in by KL)
+
+I ran 4 pilot participants to ensure the directions worked well and that things randomized properly. After piloting I made some changes to page breaks, and in the end the randomization worked and everything went smoothly. The order that stimuli appeared for each of the four participants were as follows:
+
+weather not explained
+fish not explained 
+ice explained
+rock explained
+manip check
+
+weather explained
+ice explained
+fish not explained
+rock not explained
+manip check
+
+manip check
+ice explained
+weather explained
+fish not explained
+rock not explained 
+
+fish explained
+ice explained
+manip check
+weather unexplained
+rock unexplained
+
+
 ### Methods Addendum (Post Data Collection)
 
 You can comment this section out prior to final report with data collection.
