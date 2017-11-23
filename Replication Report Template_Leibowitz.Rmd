@@ -159,10 +159,39 @@ Data preparation following the analysis plan.
 ####Load Relevant Libraries and Functions
 
 ####Import data
+setwd("~/Desktop/251/Sloman2016/writeup/Sloman2016")
+d <- read.csv("251 Replication_November 22, 2017_16.24.csv")
 
 #### Data exclusion / filtering
 
 #### Prepare data for analysis - create columns etc.
+
+#converting variables of interest from factor to numeric
+d$ck_rock <- as.numeric(d$ck_rock)
+d$ck_ice <- as.numeric(d$ck_ice)
+d$ck_fish <- as.numeric(d$ck_fish)
+d$ck_weather <- as.numeric(d$ck_weather)
+d$nock_rock <- as.numeric(d$nock_rock)
+d$nock_ice <- as.numeric(d$nock_ice)
+d$nock_fish <- as.numeric(d$nock_fish)
+d$nock_weather <- as.numeric(d$nock_weather)
+
+#calculating mean for each variable
+meanckrock <- mean(d$ck_rock, na.rm=TRUE)
+meanckfish <- mean(d$ck_fish, na.rm=TRUE)
+meanckice <- mean(d$ck_ice, na.rm=TRUE)
+meanckweather <- mean(d$ck_weather, na.rm=TRUE)
+
+meannockrock <- mean(d$nock_rock, na.rm=TRUE)
+meannockfish <- mean(d$nock_fish, na.rm=TRUE)
+meannockice <- mean(d$nock_ice, na.rm=TRUE)
+meannockweather <- mean(d$nock_weather, na.rm=TRUE)
+
+#calculating mean for nock and ck
+
+ckmean <- (meanckrock + meanckfish + meanckice + meanckweather)/4
+nockmean <- (meannockrock + meannockfish + meannockice + meannockweather)/4
+
 ```
 
 ### Confirmatory analysis
@@ -174,6 +203,17 @@ The analyses as specified in the analysis plan.
 
 ![](Sloman_experiment1_table.png)
 *original*
+
+```{r analyses}
+
+#need to figure out log transformation here
+
+#not enough observations but will do t test here: need to figure out if it's okay to do it the way I've done it above coming up with static numbers and comparing means, or if for effect size etc. I will need to create new variables/reshape the data differently
+
+t.test (ckmean, nockmean, paired=TRUE)
+
+```
+
 
 ###Exploratory analyses
 
