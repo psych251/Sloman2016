@@ -171,6 +171,10 @@ The analyses as specified in the analysis plan.
 
 *Side-by-side graph with original graph is ideal here*
 
+
+![](Sloman_experiment1_table.png)
+*original*
+
 ###Exploratory analyses
 
 Any follow-up analyses desired (not required).  
