@@ -190,6 +190,11 @@ Data preparation following the analysis plan.
 ####Load Relevant Libraries and Functions
 library(tidyverse)
 library(ggthemes)
+library(knitr)
+library(kableExtra)
+sem <- function(x) {sd(x, na.rm=TRUE) / sqrt(sum(!is.na((x))))}
+ci <- function(x) {sem(x) * 1.96} # reasonable approximation 
+library(effsize)
 
 ####Import data
 setwd("~/Desktop/251/Sloman2016/writeup/Sloman2016")
@@ -207,47 +212,23 @@ d <- dx %>%
 
 
 dtable <- dx %>%
-  select(ResponseId, starts_with('ck'), starts_with("nock")) %>%
-  gather(Question, response, -ResponseId) %>%
-  group_by(Question) %>%
-  summarise(mean = mean(response, na.rm=TRUE), sd = sd(response, na.rm=TRUE)) 
+  select(ResponseId, starts_with('ck'), starts_with("nock")) %>% #selecting relevant variables
+  gather(Question, response, -ResponseId) %>% #organizing them by stimuli
+  group_by(Question) %>% #grouping by stimuli
+  mutate(condition=Question) #creating ck or nock conditions
 
-condition = c('ck', 'ck', 'ck', 'ck', 'nock', 'nock', 'nock', 'nock') #making variable for condition manually - tried to do it lots of other ways but couldn't get it to work
+dtable$condition <- gsub("_ice", "", dtable$condition) #dropping stimuli specific words to make overall ck or nock conditions
+dtable$condition <- gsub("_weather", "", dtable$condition)
+dtable$condition <- gsub("_rock", "", dtable$condition)
+dtable$condition <- gsub("_fish", "", dtable$condition)
 
-dtable2 <- data.frame(dtable, condition) #joining condition variable to table 
-
-
+dtable$Question <- gsub("ck_", "", dtable$Question)
+dtable$Question <- gsub("no", "", dtable$Question)
 
 
 ```
 
 Unused code here
-
-#converting variables of interest from factor to numeric
-d$ck_rock <- as.numeric(d$ck_rock)
-d$ck_ice <- as.numeric(d$ck_ice)
-d$ck_fish <- as.numeric(d$ck_fish)
-d$ck_weather <- as.numeric(d$ck_weather)
-d$nock_rock <- as.numeric(d$nock_rock)
-d$nock_ice <- as.numeric(d$nock_ice)
-d$nock_fish <- as.numeric(d$nock_fish)
-d$nock_weather <- as.numeric(d$nock_weather)
-
-#calculating mean for each variable
-meanckrock <- mean(d$ck_rock, na.rm=TRUE)
-meanckfish <- mean(d$ck_fish, na.rm=TRUE)
-meanckice <- mean(d$ck_ice, na.rm=TRUE)
-meanckweather <- mean(d$ck_weather, na.rm=TRUE)
-
-meannockrock <- mean(d$nock_rock, na.rm=TRUE)
-meannockfish <- mean(d$nock_fish, na.rm=TRUE)
-meannockice <- mean(d$nock_ice, na.rm=TRUE)
-meannockweather <- mean(d$nock_weather, na.rm=TRUE)
-
-#calculating mean for nock and ck
-
-ckmean <- (meanckrock + meanckfish + meanckice + meanckweather)/4
-nockmean <- (meannockrock + meannockfish + meannockice + meannockweather)/4
 
 
 ### Confirmatory analysis
@@ -261,13 +242,50 @@ The analyses as specified in the analysis plan.
 *original*
 
 ```{r analyses}
+  
+#Recreating Table 2 from original paper #have all the information in here but still working on making it nice with kable
+dtablesummary <- dtable %>%
+  group_by(Question, condition) %>%
+  summarise(mean = mean(response, na.rm=TRUE), sd = sd(response, na.rm=TRUE)) 
+dtablesummary
 
-#need to figure out log transformation here
 
-#not enough observations but will do t test here: need to figure out if it's okay to do it the way I've done it above coming up with static numbers and comparing means, or if for effect size etc. I will need to create new variables/reshape the data differently
+#making table of total means by condition
+dtabletotal <- dtable %>%
+  group_by(condition) %>%
+  summarise(mean = mean(response, na.rm=TRUE), 
+            sd = sd(response, na.rm=TRUE), 
+            ci=ci(response)) 
+dtabletotal
 
-t.test (ckmean, nockmean, paired=TRUE)
 
+#Getting log averages by conditions for each subject
+dlog <- dtable %>%
+  group_by(ResponseId, condition) %>%
+  summarise(mean = mean(response, na.rm=TRUE)) %>%
+  mutate(log_understand = log(mean)) %>%
+  spread(condition, log_understand) %>%
+  group_by(ResponseId) %>%
+  summarise(meanck = mean(ck, na.rm=TRUE), meannock = mean(nock, na.rm=TRUE))
+dlog
+
+#STATISTIC OF INTEREST: paired t test on log transformed means of understanding
+t.test(dlog$meanck, dlog$meannock, paired=TRUE)
+# effect size
+cohen.d=cohen.d(dlog$meanck, dlog$meannock, paired=TRUE)
+
+#plot (not a replication of experiment 1 in the original paper but a replication of a plot of other, similar experiments)
+dtabletotal$condition <- c("CK", "No CK") #renaming this variable 
+
+ggplot(dtabletotal, aes(x=condition, y=mean, fill=condition)) +
+  geom_bar(stat="identity") +
+    geom_errorbar(aes(ymin = mean - ci, ymax = mean + ci),
+                width = 0.5) + 
+  coord_cartesian(ylim=c(1,7)) + 
+  ylab("Mean Understanding") + xlab ("Condition") +
+  ggthemes::scale_colour_solarized() + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + theme(panel.border = element_blank()) + theme(axis.line = element_line(colour = "black")) + theme(legend.position="none")
+
+  
 ```
 
 
