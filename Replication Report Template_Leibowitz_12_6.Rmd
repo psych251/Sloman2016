@@ -25,6 +25,10 @@ Participants will be recruited using Amazon's Mechanical Turk in return for a sm
 
 ###Power Analysis 
 
+Power analysis based on: 
+
+> A paired-samples t test of the log-transformed ratings of understanding revealed that they were significantly higher in the CK condition (M = 0.28, 95% confidence interval, or CI = [0.21, 0.35]) than in the no-CK condition (M = 0.20, 95% CI = [0.15, 0.25]), t(69) = −3.40, p = .001, Cohen’s d = 0.43.
+
 Original effect size: d=.43
 Power analysis for samples to achieve same effect size:
 80% power: n=45
@@ -100,8 +104,6 @@ Means for ratings of understanding of both conditions will be calculated. Assumi
 
 ###Differences from Original Study
 
-Explicitly describe known differences in sample, setting, procedure, and analysis plan from original study.  The goal, of course, is to minimize those differences, but differences will inevitably occur.  Also, note whether such differences are anticipated to make a difference based on claims in the original article or subsequent published research on the conditions for obtaining the effect.
-
 We will be recruiting a different, smaller sample size than in the original study based on a power calculation based on the effect size found in the original study. Additionally, the original study does not specify whether the survey was coded on Qualtrics or directly on Amazon mTurk, so it is possible that running the study on Qualtrics would be a difference from the original study. Finally, the authors do not specify exactly how the original counterbalancing was done, so this reproduction will use our judgment to try and best randomize and counterbalance the presentation of stimuli. 
 
 I do not anticipate that these differences will influence our ability to reproduce effects from the original study.
@@ -114,15 +116,15 @@ weather not explained
 fish not explained 
 ice explained
 rock explained
-manip check
+attn check
 
 weather explained
 ice explained
 fish not explained
 rock not explained
-manip check
+attn check
 
-manip check
+attn check
 ice explained
 weather explained
 fish not explained
@@ -130,59 +132,22 @@ rock not explained
 
 fish explained
 ice explained
-manip check
+attn check
 weather unexplained
 rock unexplained
 
 
-### Methods Addendum (Post Data Collection)
-
-You can comment this section out prior to final report with data collection.
-
 #### Actual Sample
-  Sample size, demographics, data exclusions based on rules spelled out in analysis plan
+  Final sample included 61 participants (56% male, 43% female).
 
 #### Differences from pre-data collection methods plan
-  Any differences from what was described as the original plan, or “none”.
+  The final number of participants (61) was larger than the initially planned number of participants (45) due to a relatively lower percentage of participants failing the attention check and being excluded from the data than in the original study (original study: 12/82 = 14.6%, our study: 3/64 = 4.6%).
 
 
 ##Results
 
 
 ### Data preparation
-
-FROM LAST YEAR PERSON WHO DID EXPERIMENT TWO
-
-#Recreate Table 2 from original paper
-df_long %>% 
-  group_by(condition) %>%
-  summarise(mean = mean(rating), sd = sd(rating))
-
-#Original paper averages within condition and subject
-df_grouped_by_subject_and_cond <- df_long %>%
-  group_by(subject_id, condition) %>%
-  summarise(mean = mean(rating)) %>%
-  mutate(Log_Understanding = log(mean))
-df_grouped_by_subject_and_cond
-#Repeated Measures Anova used in original paper: repeated measures ANOVA, log transformed means
-aov_logs <- ezANOVA(data = df_grouped_by_subject_and_cond, dv = Log_Understanding, wid = subject_id, within = condition, detailed=TRUE)
-aov_logs
-#Original paper also performed a t-test between the conditions' log-transformed means
-public_cok <- df_grouped_by_subject_and_cond %>%
-  filter(condition == "public_cok")
-
-public_noncok <- df_grouped_by_subject_and_cond %>%
-  filter(condition == "public_noncok")
-
-secret_cok <- df_grouped_by_subject_and_cond %>%
-  filter(condition == "secret_cok")
-
-t.test(as.matrix(public_noncok[,"Log_Understanding"]), as.matrix(public_cok[,"Log_Understanding"]), var.equal = TRUE, paired=TRUE)
-t.test(as.matrix(secret_cok[,"Log_Understanding"]), as.matrix(public_cok[,"Log_Understanding"]), var.equal = TRUE, paired=TRUE)
-t.test(as.matrix(public_noncok[,"Log_Understanding"]), as.matrix(secret_cok[,"Log_Understanding"]), var.equal = TRUE, paired=TRUE)
-
-
-Data preparation following the analysis plan.
 	
 ```{r include=F}
 ###Data Preparation
@@ -195,15 +160,17 @@ library(kableExtra)
 sem <- function(x) {sd(x, na.rm=TRUE) / sqrt(sum(!is.na((x))))}
 ci <- function(x) {sem(x) * 1.96} # reasonable approximation 
 library(effsize)
+library(lme4)
+library(stargazer, quietly = TRUE)
 
 ####Import data
 setwd("~/Desktop/251/Sloman2016/writeup/Sloman2016")
-dx <- read.csv("251 Replication_December 4, 2017.csv")
+dx <- read.csv("251 Replication_December 12, 2017.csv")
 
 #### Data exclusion / filtering
 
 d <- dx %>%
-  filter (attn == 1)
+  filter (attn != 0)
 #coded attention check as 1 if pariticpants passed and 0 if they failed, this is filtering out all who failed attention check
 
 #### Prepare data for analysis - create columns etc.
@@ -225,30 +192,38 @@ dtable$condition <- gsub("_fish", "", dtable$condition)
 dtable$Question <- gsub("ck_", "", dtable$Question)
 dtable$Question <- gsub("no", "", dtable$Question)
 
+dtable
+
 
 ```
 
-Unused code here
 
 
 ### Confirmatory analysis
-
-The analyses as specified in the analysis plan.  
-
-*Side-by-side graph with original graph is ideal here*
-
-
-![](Sloman_experiment1_table.png)
-*original*
 
 ```{r analyses}
   
 #Recreating Table 2 from original paper #have all the information in here but still working on making it nice with kable
 dtablesummary <- dtable %>%
   group_by(Question, condition) %>%
-  summarise(mean = mean(response, na.rm=TRUE), sd = sd(response, na.rm=TRUE)) 
+  summarise(mean = mean(response, na.rm=TRUE), sd = sd(response, na.rm=TRUE)) %>%
+  group_by(condition, Question, mean, sd) %>%
+  summarise()
 dtablesummary
 
+```
+
+![](Sloman_experiment1_table.png)
+*original*
+
+```{r table}
+knitr::kable(dtablesummary, digits = 2)
+```
+
+*replication*
+
+
+```{r confirmatory continued}
 
 #making table of total means by condition
 dtabletotal <- dtable %>%
@@ -269,36 +244,126 @@ dlog <- dtable %>%
   summarise(meanck = mean(ck, na.rm=TRUE), meannock = mean(nock, na.rm=TRUE))
 dlog
 
+#calculating mean log transformed understanding ratings
+mean(dlog$meanck)
+mean(dlog$meanck)-ci(dlog$meanck)
+mean(dlog$meanck)+ci(dlog$meanck)
+
+mean(dlog$meannock)
+mean(dlog$meannock)-ci(dlog$meannock)
+mean(dlog$meannock)+ci(dlog$meannock)
+  
+
 #STATISTIC OF INTEREST: paired t test on log transformed means of understanding
-t.test(dlog$meanck, dlog$meannock, paired=TRUE)
+t.test(dlog$meannock, dlog$meanck, paired=TRUE)
 # effect size
 cohen.d=cohen.d(dlog$meanck, dlog$meannock, paired=TRUE)
+cohen.d
 
 #plot (not a replication of experiment 1 in the original paper but a replication of a plot of other, similar experiments)
+#note: tried to adjust aspect ratio but every time I tried to specify it (using either coord_fixed or coord_equal) it cut off the axes based on the data (so the y axis went from 1 to 3)
 dtabletotal$condition <- c("CK", "No CK") #renaming this variable 
 
 ggplot(dtabletotal, aes(x=condition, y=mean, fill=condition)) +
   geom_bar(stat="identity") +
     geom_errorbar(aes(ymin = mean - ci, ymax = mean + ci),
-                width = 0.5) + 
-  coord_cartesian(ylim=c(1,7)) + 
+                width = 0.25) + 
   ylab("Mean Understanding") + xlab ("Condition") +
-  ggthemes::scale_colour_solarized() + theme_bw() + theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + theme(panel.border = element_blank()) + theme(axis.line = element_line(colour = "black")) + theme(legend.position="none")
-
-  
+  scale_fill_ptol() +  
+  theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank()) + 
+  theme(panel.border = element_blank()) + 
+  theme(axis.line = element_line(colour = "black"))  + 
+  ggtitle("Mean Understanding Based on \n Community Knowledge (CK)") + 
+  theme_minimal() + 
+  theme(legend.position="none") + 
+  theme(plot.title = element_text(hjust = 0.5, size=rel(1.5)))+
+  theme(axis.text.x=element_text(size=rel(.8)))+
+  theme(axis.title.x=element_text(size=rel(1)))+
+  theme(axis.title.y=element_text(size=rel(1))) +
+  coord_cartesian(ylim=c(1,7))
 ```
+
 
 
 ###Exploratory analyses
 
-Any follow-up analyses desired (not required).  
+```{r exploratory}
+
+#demographics
+table(d$gender)
+#56% male, 43% female
+
+#looking at interaction with gender - an interaction by gender would be interesting (i.e. are women or men more likely to say they understand something?)
+
+genderdata <- dx %>%
+  select(ResponseId, gender) %>%
+  filter(gender !=4)
+
+gendertable <- full_join(genderdata, dtable, by="ResponseId")
+
+genderinteraction <- lm(response~condition*gender, data=gendertable)
+summary(genderinteraction)
+
+genderlm <- lm(response~gender, data=gendertable)
+summary(genderlm)
+
+#no significant relationship between gender and ratings of understanding
+
+```
+
+```{r mixed effects model}
+
+#Here I am following the suggestion raised in class to look at a mixed model to assess whether ratings of understanding differed across the different stimuli used. I have very little experience running mixed effects models and thus am unsure if this was the best way to assess these models to answer that question. 
+
+dtable2 <- dtable
+dtable2$Question[dtable2$Question == "fish"] <- 1
+dtable2$Question[dtable2$Question == "ice"] <- 2
+dtable2$Question[dtable2$Question == "rock"] <- 3
+dtable2$Question[dtable2$Question == "weather"] <- 4
+dtable2$Question <- as.numeric(dtable2$Question)
+
+#regular lm model looking at effect of condition on response
+lm1 <- lm(response~condition, data=dtable2)
+summary(lm1)
+
+#lm model looking at effect of condition on response with an interaction by Question type
+lmer1 <- lm(response~condition*Question, data=dtable2)
+summary(lmer1) #significant interaction between Question type and condition on response
+anova(lmer1, lm1) #anova reveals that the interaction model is significantly better than the regular lm
+
+lmer2 <- lmer(response~condition*Question + (1 | Question), data=dtable2)
+summary(lmer2)
+
+anova(lmer2, lmer1) #difference in AIC is very small, lmer1 (the model without random effects) seems to be the better model only slightly; it appears that adding in Questions as a random slope to the model does not make the model significantly better 
+
+lmer3 <- lmer(response~condition*Question + (1 + Question | Question), data=dtable2)
+summary(lmer3)
+
+anova(lmer3, lmer2) #difference in AIC is still very small, lmer2 (the model without random effects) seems to be the better model only slightly; it appears that adding in Questions as a random intercept in addition to random slope to the model does not make the model significantly better 
+
+```
+
+```{r lm1, results = 'asis', warning=FALSE, message=FALSE}
+
+stargazer(lm1, type = 'html')
+stargazer(lmer1, type = 'html')
+stargazer(lmer2, type = 'html')
+stargazer(lmer3, type = 'html')
+
+```
+
 
 ## Discussion
 
 ### Summary of Replication Attempt
 
-Open the discussion section with a paragraph summarizing the primary result from the confirmatory analysis and the assessment of whether it replicated, partially replicated, or failed to replicate the original result.  
+On one hand, this experiment replicated: when the responses were collapsed across CK and No-CK conditions, as in the original paper, and compared using a t test, ratings of understanding were significantly higher in the CK condition than in the No-CK condition. However, there were several notable differences in the findings between this study and the original study. In the original study, Sloman & Rabb found that ratings of understanding for all four of the stimuli were rated as lower in the No-CK condition. In this replication, however, two of the four stimuli (those concerning flying fish and ice formations) received higher ratings of understanding in the No-CK condition than in the CK condition. Thus, I would overall clarify this as a partial replication, as Sloman & Rabb's theory should not have led to any differences by stimuli, and all stimuli in the No-CK condition should have led to less understanding than all stimuli in the CK condition. 
+
 
 ### Commentary
 
-Add open-ended commentary (if any) reflecting (a) insights from follow-up exploratory analysis, (b) assessment of the meaning of the replication (or not) - e.g., for a failure to replicate, are the differences between original and present study ones that definitely, plausibly, or are unlikely to have been moderators of the result, and (c) discussion of any objections or challenges raised by the current and original authors about the replication attempt.  None of these need to be long.
+To further investigate the issue of certain stimuli items leading to higher ratings of understanding in the No-CK than in the CK conditions, I examined both an interaction between the stimuli and the condition on responses and a mixed effects model looking at stimuli as a random slope or a random intercept and a random slope. I do not believe the mixed effects models proved to be significantly better than the interaction model (based on the anovas I ran to compare the models), but an interaction model did indicate a significant interaction between stimuli items (Questions) and condition (CK or No-CK) on ratings of understanding (responses). According to Sloman & Rabb's theory, there should not have been an interaction between stimuli and condition, as ratings of understanding should have been the same across stimuli within condition. 
+
+Whether my replication findings represent random noise is an open question, as this study was only 1 of 4 run by Sloman & Rabb supporting their hypothesis for a community of knowledge. However, to fully answer this question it seems that it would be necessary to run an additional replication with a greater number of different stimuli to eliminate the possibility of effects by various stimuli. 
+
+This replication was conducted in a way that matched the original study as much as possible, including using the same attention check and stimuli. As such, this finding (that overall the findings replicated, but with some interesting caveats), represents an area of necessary further exploration for understanding the theory set out by Sloman & Rabb in their paper. 
